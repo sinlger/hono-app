@@ -30,7 +30,6 @@ export async function getTopHubItems(db: D1Database) {
       .all<TopHub>()
     return results || []
   } catch (error) {
-    console.error('Database error in getTopHubItems:', error)
     throw new Error('Failed to fetch TopHub items from database')
   }
 }
@@ -63,7 +62,6 @@ export async function insertTopHubItem(db: D1Database, item: Omit<TopHub, 'id' |
       )
       .run()
   } catch (error) {
-    console.error('Database error in insertTopHubItem:', error)
     throw new Error('Failed to insert TopHub item into database')
   }
 }

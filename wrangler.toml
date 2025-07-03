@@ -2,3 +2,11 @@
 binding = "DB" 
 database_name = "toutiao"
 database_id = "000558a0-efa6-41b5-be0e-1a6b4af693ed"
+
+[triggers]
+crons = ["0 * * * *"]  # 每小时执行一次
+
+# 添加以下配置
+name = "hono-app"
+main = "src/index.tsx"
+compatibility_date = "2023-07-03"
