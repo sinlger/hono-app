@@ -2,7 +2,9 @@ import { Hono } from 'hono'
 import { renderer } from './renderer'
 import { swaggerUI } from '@hono/swagger-ui'
 import { routes } from './routes'
+import { Env } from './db'; // 导入环境变量接口和类型定义
 import { openApiDoc } from './openapi'
+import { handleScheduledTask } from './routes/cronTaskHandler'; // 假设你的定时任务逻辑在这个文件
 
 const app = new Hono()
 
@@ -22,24 +24,17 @@ app.get('/ui', swaggerUI({ url: '/doc' }))
 
 
 export default {
-  fetch: app.fetch,
-  async scheduled(event, env, ctx) {
-    const scrapyTophubJob = async () => {
-      try {
-        // 传递环境变量
-        const response = await app.request('/scrapy/tophub', {
-          headers: {'CF-Env': JSON.stringify(env)}
-        });
-        
-        if (!response.ok) {
-          console.error('定时任务失败:', await response.text());
-        } else {
-          console.log('定时任务执行成功');
-        }
-      } catch (error) {
-        console.error('定时任务异常:', error);
-      }
-    };
-    ctx.waitUntil(scrapyTophubJob());
-  }
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    // 将所有 fetch 事件委托给 Hono 应用处理
+    return app.fetch(request, env, ctx);
+  },
+  /**
+   * 处理定时任务 (scheduled event)
+   */
+  async scheduled(event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    console.log(`[Cron Trigger] 定时任务在 ${new Date(event.scheduledTime).toISOString()} 触发。`);
+    // 将定时任务的具体逻辑委托给单独的函数处理
+    await handleScheduledTask(event, env, ctx);
+    console.log('[Cron Trigger] 定时任务执行完毕。');
+  },
 }
