@@ -3,7 +3,7 @@ import { Env } from '../db'
 // import { fetch } from '@cloudflare/workers-types'
 
 
-const API_URL = 'https://api-hot.imsyy.top/toutiao?cache=true';
+const API_URL = 'https://api-hot.imsyy.top/toutiao?cache=false';
 
 /**
  * 获取并处理TopHub数据
