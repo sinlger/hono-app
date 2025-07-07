@@ -8,4 +8,11 @@ database_name = "toutiao"
 database_id = "000558a0-efa6-41b5-be0e-1a6b4af693ed"
 
 [triggers]
-crons = ["0 * * * *"]  # 每小时执行一次
+crons = [
+  "0 * * * *", # 每小时执行一次
+  "0 0/10 * * * ?" # 每隔十分钟执行一次
+]
+
+[vars]
+SILI_CHART_URL = "https://api.siliconflow.cn/v1/chat/completions"
+SILI_API_KEY = "sk-hgsfuaahfbksiffbogwacunpacppyxlcoligokjnnlaptlzt"
