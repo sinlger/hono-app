@@ -4,7 +4,8 @@ import { swaggerUI } from '@hono/swagger-ui'
 import { routes } from './routes'
 import { Env } from './db'; // 导入环境变量接口和类型定义
 import { openApiDoc } from './openapi'
-import { handleScheduledTask } from './routes/cronTaskHandler'; // 假设你的定时任务逻辑在这个文件
+import { handleScheduledScrapyTask, handleScheduledClassTask } from './routes/cronTaskHandler'; // 假设你的定时任务逻辑在这个文件
+import { console } from '@cloudflare/workers-types';
 
 const app = new Hono()
 
@@ -32,9 +33,20 @@ export default {
    * 处理定时任务 (scheduled event)
    */
   async scheduled(event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-    console.log(`[Cron Trigger] 定时任务在 ${new Date(event.scheduledTime).toISOString()} 触发。`);
-    // 将定时任务的具体逻辑委托给单独的函数处理
-    await handleScheduledTask(event, env, ctx);
-    console.log('[Cron Trigger] 定时任务执行完毕。');
-  },
+    const cronExpression = event.cron;
+    switch (cronExpression) {
+      case "0 * * * *":
+        // 每小时执行一次
+        await handleScheduledScrapyTask(event, env, ctx);
+        break;
+      case "0 0/10 * * * ?":
+        console.log('我每十分钟执行一次');
+        await handleScheduledClassTask(event, env, ctx);
+        break;
+      default:
+        console.warn(`[Cron Trigger] 未知或未处理的 Cron 表达式: ${cronExpression}`);
+        break;
+    }
+    console.log(`[Cron Trigger] 表达式 "${cronExpression}" 的任务执行完毕。`);
+  }
 }

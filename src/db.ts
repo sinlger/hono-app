@@ -1,7 +1,9 @@
 import { D1Database } from '@cloudflare/workers-types'
 
 export interface Env {
-  DB: D1Database
+  DB: D1Database,
+  SILI_CHART_URL: string,
+  SILI_API_KEY: string
 }
 
 export interface TopHub {
