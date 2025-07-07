@@ -5,7 +5,6 @@ import { routes } from './routes'
 import { Env } from './db'; // 导入环境变量接口和类型定义
 import { openApiDoc } from './openapi'
 import { handleScheduledScrapyTask, handleScheduledClassTask } from './routes/cronTaskHandler'; // 假设你的定时任务逻辑在这个文件
-import { console } from '@cloudflare/workers-types';
 
 const app = new Hono()
 
@@ -39,7 +38,7 @@ export default {
         // 每小时执行一次
         await handleScheduledScrapyTask(event, env, ctx);
         break;
-      case "0 0/10 * * * ?":
+      case "*/10 * * * *":
         console.log('我每十分钟执行一次');
         await handleScheduledClassTask(event, env, ctx);
         break;
