@@ -27,8 +27,8 @@ export async function handleScheduledTask(
       // 注意：这要求 item_id 和 title 在表中具有 UNIQUE 约束。
       const insertStatement = env.DB.prepare(
         `INSERT OR IGNORE INTO tophub 
-   (item_id, title, cover, timestamp, hot, url, mobileUrl, hasTT, hasWT, classify) 
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         (item_id, title, cover, timestamp, hot, url, mobileUrl, hasTT, hasWT, classify) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
         item.id || null, // 对于空字符串或 undefined，D1 建议使用 null 存储
         item.title || null,
