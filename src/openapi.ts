@@ -6,31 +6,68 @@ export const openApiDoc = {
     description: 'API documentation for Hono App'
   },
   paths: {
-    '/siliconflow/chat': {
+
+    '/folo/webhook': {
       post: {
-        summary: '使用SiliconFlow API进行新闻分类',
-        description: '从数据库获取未分类的新闻，使用SiliconFlow API进行分类，并更新数据库',
+        summary: '接收 Folo Actions 的 Webhook',
+        description: '接收 Folo Actions 推送的数据并将其存入数据库。',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  entry: {
+                    type: 'object',
+                    properties: {
+                      item_id: { type: 'string', description: "Entry's unique ID" },
+                      feed_id: { type: 'string', description: "Feed's ID" },
+                      title: { type: 'string', description: "Entry's title" },
+                      author: { type: 'string', description: "Entry's author" },
+                      url: { type: 'string', description: "Entry's URL" },
+                      guid: { type: 'string', description: "Entry's GUID" },
+                      description: { type: 'string', description: "Entry's description" },
+                      content: { type: 'string', description: "Entry's full content" },
+                      media: { type: 'object', description: 'Media content, stored as JSON' },
+                      published_at: { type: 'string', format: 'date-time', description: 'Publication timestamp' },
+                      inserted_at: { type: 'string', format: 'date-time', description: 'Insertion timestamp' },
+                      category: { type: 'string', description: 'Category for the entry (optional)' }
+                    },
+                    required: ['item_id', 'feed_id', 'title', 'url', 'published_at', 'inserted_at']
+                  }
+                }
+              }
+            }
+          }
+        },
         responses: {
           '200': {
-            description: '成功处理数据',
+            description: '数据成功保存',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    choices: {
-                      type: 'array',
-                      items: {
-                        type: 'object',
-                        properties: {
-                          message: {
-                            type: 'object',
-                            properties: {
-                              content: { type: 'string' }
-                            }
-                          }
-                        }
-                      }
+                    message: {
+                      type: 'string',
+                      example: 'Data saved successfully'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '400': {
+            description: '无效的请求体',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    error: {
+                      type: 'string',
+                      example: 'Invalid Folo Action payload'
                     }
                   }
                 }
@@ -44,88 +81,10 @@ export const openApiDoc = {
                 schema: {
                   type: 'object',
                   properties: {
-                    success: { type: 'boolean', example: false },
-                    message: { type: 'string', example: '错误信息' }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    '/api/tophub': {
-      get: {
-        summary: '获取TopHub项目列表',
-        responses: {
-          '200': {
-            description: '成功',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'array',
-                  items: {
-                    $ref: '#/components/schemas/TopHubItem'
-                  }
-                }
-              }
-            }
-          },
-          '500': {
-            description: '服务器错误'
-          }
-        }
-      },
-      post: {
-        summary: '创建新的TopHub项目',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                $ref: '#/components/schemas/TopHubItem'
-              }
-            }
-          }
-        },
-        responses: {
-          '200': {
-            description: '成功'
-          },
-          '500': {
-            description: '服务器错误'
-          }
-        }
-      }
-    },
-    '/scrapy/tophub': {
-      get: {
-        summary: '从外部API抓取TopHub数据并存入数据库',
-        description: '请求外部API获取数据，检查数据库重复后存入',
-        responses: {
-          '200': {
-            description: '成功处理数据',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: true },
-                    message: { type: 'string', example: '数据已处理' }
-                  }
-                }
-              }
-            }
-          },
-          '500': {
-            description: '服务器错误',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    success: { type: 'boolean', example: false },
-                    message: { type: 'string', example: '错误信息' }
+                    error: {
+                      type: 'string',
+                      example: 'Failed to save data'
+                    }
                   }
                 }
               }
@@ -136,23 +95,6 @@ export const openApiDoc = {
     }
   },
   components: {
-    schemas: {
-      TopHubItem: {
-        type: 'object',
-        properties: {
-          id: { type: 'integer' },
-          item_id: { type: 'string' },
-          title: { type: 'string' },
-          cover: { type: 'string' },
-          timestamp: { type: 'integer' },
-          hot: { type: 'string' },
-          url: { type: 'string' },
-          mobileUrl: { type: 'string' },
-          hasTT: { type: 'integer' },
-          hasWT: { type: 'integer' },
-          classify: { type: 'string' }
-        }
-      }
-    }
+    schemas: {}
   }
 }

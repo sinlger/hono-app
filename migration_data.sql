@@ -1,0 +1,1 @@
+-- The schema has been migrated. No data to import.
