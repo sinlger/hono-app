@@ -1,5 +1,5 @@
 name = "hono-app"
-main = "src/index.tsx"
+main = "src/index.js"
 compatibility_date = "2023-07-03"
 
 [[d1_databases]]

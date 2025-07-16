@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
-import { Env } from '../db';
 
-export const foloRoutes = new Hono<{ Bindings: Env }>();
+export const foloRoutes = new Hono();
 
 foloRoutes.post('/folo/webhook', async (c) => {
   try {
@@ -13,8 +12,8 @@ foloRoutes.post('/folo/webhook', async (c) => {
     }
 
     const {
-      id: item_id,
-      feedId: feed_id,
+      item_id,
+      feed_id,
       title,
       author,
       url,
@@ -22,9 +21,9 @@ foloRoutes.post('/folo/webhook', async (c) => {
       description,
       content,
       media,
-      publishedAt: published_at,
-      insertedAt: inserted_at,
-      category // Extract category from the entry object
+      published_at,
+      inserted_at,
+      category
     } = entry;
 
     // Check if the item already exists

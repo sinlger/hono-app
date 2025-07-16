@@ -1,14 +1,9 @@
-// src/cronHandler.ts
-import { Env } from '../db'; // 导入环境变量接口
+import newsClassificationPrompt from '../prompts/newsClassification.txt?raw';
 
-export async function handleScheduledClassTask(
-  event: ScheduledController,
-  env: Env,
-  ctx: ExecutionContext
-): Promise<void> {
+export async function handleScheduledClassTask(event, env, ctx) {
   try {
     const statementBox = env.DB.prepare('SELECT feed_id, title FROM tophub WHERE category IS NULL ORDER BY inserted_at DESC LIMIT 10');
-    const { results } = await statementBox.all<{ feed_id: string; title: string }>();
+    const { results } = await statementBox.all();
     if (!results || results.length === 0) {
       console.log('[Cron Task] No items to categorize.');
       return;
@@ -32,45 +27,7 @@ export async function handleScheduledClassTask(
         messages: [
           {
             role: 'system',
-            content: `
-你是一个专业的**新闻分类AI**。你的任务是根据给定的**包含feed_id和标题的列表**，准确地判断每条新闻所属的**分类**，并在原始字典中添加分类信息，按照指定的格式输出。
-
-**指令：**
-1.  仔细阅读提供的每个文章标题。
-2.  根据标题的语义内容，推断其最可能的新闻分类。
-3.  如果一个标题可能属于多个分类，请选择最主要或最具体的分类。
-4.  如果信息量不足以进行有效分类，请将分类标记为“其他”。
-5.  你的输出必须是一个JSON格式的列表，其中每个元素是原始字典（包含\`feed_id\`和\`title\`），并添加了一个\`category\`键值对。
-
-**可供选择的分类：**
-*   政治
-*   经济
-*   社会
-*   科技
-*   体育
-*   娱乐
-*   国际
-*   军事
-*   教育
-*   文化
-*   健康
-*   环境
-*   法律
-*   汽车
-*   房产
-*   旅游
-*   美食
-*   时尚
-*   其他
-
-**输入格式：**
-一个JSON列表，每个对象包含\`feed_id\`（字符串）和\`title\`（字符串），例如：
-\`[{"feed_id":"feed/https://...", "title":"带你上航母看舰载机"}, {"feed_id":"feed/https://...", "title":"全球经济预测：下半年增长放缓"}]\`
-
-**输出格式：**
-一个JSON列表，例如：
-\`[{"feed_id": "feed/https://...", "title": "带你上航母看舰载机", "category": "军事"}, {"feed_id": "feed/https://...", "title": "全球经济预测：下半年增长放缓", "category": "经济"}]\`
-`
+            content: newsClassificationPrompt
           },
           {
             role: 'user',
@@ -93,7 +50,7 @@ export async function handleScheduledClassTask(
     }
     const parsedData = JSON.parse(jsonMatch[1]);
 
-    const statements: D1PreparedStatement[] = [];
+    const statements = [];
     for (const item of parsedData) {
       if (item.feed_id && item.category) {
         const statement = env.DB.prepare(
