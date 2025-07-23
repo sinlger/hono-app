@@ -5,7 +5,7 @@ export async function getTopHubItems(db) {
 
   try {
     const { results } = await db
-      .prepare('SELECT * FROM tophub ORDER BY created_at DESC LIMIT 50')
+      .prepare('SELECT * FROM tophub ORDER BY inserted_at DESC LIMIT 50')
       .all();
     return results || [];
   } catch (error) {
@@ -18,26 +18,28 @@ export async function insertTopHubItem(db, item) {
     throw new Error('Database connection not available');
   }
 
-  if (!item.item_id || !item.title) {
-    throw new Error('Required fields missing: item_id and title are required');
+  if (!item.item_id) {
+    throw new Error('Required fields missing: item_id is required');
   }
 
   try {
     return await db
       .prepare(
-        'INSERT INTO tophub (item_id, title, cover, timestamp, hot, url, mobileUrl, hasTT, hasWT, classify) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        'INSERT INTO tophub (item_id, feed_id, title, author, url, guid, description, content, media, published_at, inserted_at, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
       )
       .bind(
         item.item_id,
+        item.feed_id || null,
         item.title,
-        item.cover || null,
-        item.timestamp || null,
-        item.hot || null,
+        item.author || null,
         item.url || null,
-        item.mobileUrl || null,
-        item.hasTT || 0,
-        item.hasWT || 0,
-        item.classify || null
+        item.guid || null,
+        item.description || null,
+        item.content || null,
+        item.media || null,
+        item.published_at || null,
+        item.inserted_at || null,
+        item.category || null
       )
       .run();
   } catch (error) {
