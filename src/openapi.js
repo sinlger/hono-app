@@ -7,6 +7,260 @@ export const openApiDoc = {
   },
   paths: {
 
+    '/folo/auth/token': {
+      post: {
+        summary: '生成 JWT Token',
+        description: '用于测试的 JWT token 生成接口（用户名: admin, 密码: password）',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  username: {
+                    type: 'string',
+                    example: 'admin'
+                  },
+                  password: {
+                    type: 'string',
+                    example: 'password'
+                  }
+                },
+                required: ['username', 'password']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Token 生成成功',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true
+                    },
+                    token: {
+                      type: 'string',
+                      example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                    },
+                    expiresIn: {
+                      type: 'string',
+                      example: '1h'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '401': {
+            description: '认证失败',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Invalid credentials'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '500': {
+            description: '服务器错误',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Error generating token'
+                    },
+                    error: {
+                      type: 'string'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/folo/search': {
+      get: {
+        summary: '搜索数据',
+        description: '根据标题、作者、URL等条件搜索数据，支持分页功能。需要 JWT 认证。',
+        security: [
+          {
+            bearerAuth: []
+          }
+        ],
+        parameters: [
+          {
+            name: 'title',
+            in: 'query',
+            description: '按标题模糊搜索',
+            required: false,
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            name: 'author',
+            in: 'query',
+            description: '按作者模糊搜索',
+            required: false,
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            name: 'url',
+            in: 'query',
+            description: '按URL模糊搜索',
+            required: false,
+            schema: {
+              type: 'string'
+            }
+          },
+          {
+            name: 'page',
+            in: 'query',
+            description: '页码，默认为1',
+            required: false,
+            schema: {
+              type: 'integer',
+              minimum: 1,
+              default: 1
+            }
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            description: '每页条数，默认10条，最大100条',
+            required: false,
+            schema: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 100,
+              default: 10
+            }
+          }
+        ],
+        responses: {
+          '200': {
+            description: '搜索成功',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true
+                    },
+                    data: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          item_id: { type: 'string', description: '条目ID' },
+                          feed_id: { type: 'string', description: '源ID' },
+                          title: { type: 'string', description: '标题' },
+                          author: { type: 'string', description: '作者' },
+                          url: { type: 'string', description: 'URL链接' },
+                          guid: { type: 'string', description: 'GUID' },
+                          description: { type: 'string', description: '描述' },
+                          published_at: { type: 'string', format: 'date-time', description: '发布时间' },
+                          inserted_at: { type: 'string', format: 'date-time', description: '插入时间' },
+                          category: { type: 'string', description: '分类' }
+                        }
+                      }
+                    },
+                    pagination: {
+                      type: 'object',
+                      properties: {
+                        page: { type: 'integer', description: '当前页码' },
+                        limit: { type: 'integer', description: '每页条数' },
+                        total: { type: 'integer', description: '总条数' },
+                        totalPages: { type: 'integer', description: '总页数' },
+                        hasNext: { type: 'boolean', description: '是否有下一页' },
+                        hasPrev: { type: 'boolean', description: '是否有上一页' }
+                      }
+                    },
+                    filters: {
+                      type: 'object',
+                      properties: {
+                        title: { type: 'string', nullable: true, description: '标题过滤条件' },
+                        author: { type: 'string', nullable: true, description: '作者过滤条件' },
+                        url: { type: 'string', nullable: true, description: 'URL过滤条件' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+         },
+         '401': {
+           description: 'JWT 认证失败',
+           content: {
+             'application/json': {
+               schema: {
+                 type: 'object',
+                 properties: {
+                   message: {
+                     type: 'string',
+                     example: 'Unauthorized'
+                   }
+                 }
+               }
+             }
+           }
+         },
+         '500': {
+            description: '服务器错误',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Error searching data'
+                    },
+                    error: {
+                      type: 'string',
+                      example: 'Database connection failed'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     '/folo/webhook': {
       post: {
         summary: '接收 Folo Actions 的 Webhook',
@@ -147,6 +401,14 @@ export const openApiDoc = {
     }
   },
   components: {
-    schemas: {}
+    schemas: {},
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT token for authentication'
+      }
+    }
   }
 }
