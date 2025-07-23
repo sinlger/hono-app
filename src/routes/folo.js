@@ -136,64 +136,6 @@ foloRoutes.get('/folo/search', async (c) => {
 foloRoutes.post('/folo/webhook', async (c) => {
   try {
     const body = await c.req.json();
-    const { entry } = body;
-
-    if (!entry) {
-      return c.json({ success: false, message: 'Invalid Folo Action payload' }, 400);
-    }
-
-    const {
-      item_id,
-      feed_id,
-      title,
-      author,
-      url,
-      guid,
-      description,
-      content,
-      media,
-      published_at,
-      inserted_at,
-      category
-    } = entry;
-
-    // Check if the item already exists
-    const existingItem = await c.env.DB.prepare('SELECT id FROM tophub WHERE item_id = ?').bind(item_id).first();
-
-    if (existingItem) {
-      return c.json({ message: 'Item already exists' });
-    }
-
-    const mediaJson = media ? JSON.stringify(media) : null;
-
-    await c.env.DB.prepare(
-      `INSERT INTO tophub (
-        item_id, feed_id, title, author, url, guid, description, content, media, published_at, inserted_at, category
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-      .bind(
-        item.item_id,
-        item.feed_id,
-        item.title,
-        item.author,
-        item.url,
-        item.guid,
-        item.description,
-        item.content,
-        mediaJson,
-        item.published_at ? new Date(item.published_at).toISOString() : null,
-        item.inserted_at ? new Date(item.inserted_at).toISOString() : null,
-        item.category
-      )
-      .run();
-  } catch (error) {
-    throw new Error('Failed to insert Folo item into database');
-  }
-}
-
-foloRoutes.post('/folo/webhook', async (c) => {
-  try {
-    const body = await c.req.json();
     console.log('Received webhook data:', JSON.stringify(body, null, 2));
     const { entry } = body;
 
