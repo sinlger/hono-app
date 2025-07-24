@@ -7,7 +7,7 @@ import { handleScheduledClassTask } from './routes/cronTaskHandler.js';
 const app = new Hono();
 
 app.get('/', (c) => {
-  return c.text('Hello!');
+  return c.text('Hello! 这是一个基于 Hono 的 API 服务。');
 });
 
 app.route('/', routes);

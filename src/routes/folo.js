@@ -49,56 +49,47 @@ foloRoutes.get('/folo/search', async (c) => {
   try {
     const { title, author, url, startTime, endTime, page = 1, limit = 10 } = c.req.query();
     
+    // 验证时间格式（仅在参数不为空时验证）
+    const timeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+    
+    if (startTime && startTime.trim() !== '' && !timeRegex.test(startTime)) {
+      return c.json({
+        success: false,
+        message: 'startTime format should be YYYY-MM-DD HH:mm:ss'
+      }, 400);
+    }
+    
+    if (endTime && endTime.trim() !== '' && !timeRegex.test(endTime)) {
+      return c.json({
+        success: false,
+        message: 'endTime format should be YYYY-MM-DD HH:mm:ss'
+      }, 400);
+    }
+    
     // 验证分页参数
     const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 10)); // 限制最大100条
     const offset = (pageNum - 1) * limitNum;
     
-    // 构建查询条件
-    let whereConditions = [];
-    let bindParams = [];
+    // 构建查询条件（统一处理所有条件）
+    const conditions = [
+      { field: 'title', operator: 'LIKE', value: title, transform: (v) => `%${v}%` },
+      { field: 'author', operator: 'LIKE', value: author, transform: (v) => `%${v}%` },
+      { field: 'url', operator: 'LIKE', value: url, transform: (v) => `%${v}%` },
+      { field: 'inserted_at', operator: '>=', value: startTime && startTime.trim() !== '' ? startTime : null },
+      { field: 'inserted_at', operator: '<=', value: endTime && endTime.trim() !== '' ? endTime : null }
+    ];
     
-    if (title) {
-      whereConditions.push('title LIKE ?');
-      bindParams.push(`%${title}%`);
-    }
+    const whereConditions = [];
+    const bindParams = [];
     
-    if (author) {
-      whereConditions.push('author LIKE ?');
-      bindParams.push(`%${author}%`);
-    }
-    
-    if (url) {
-      whereConditions.push('url LIKE ?');
-      bindParams.push(`%${url}%`);
-    }
-    
-    // 时间段查询
-    if (startTime) {
-      // 验证时间格式 YYYY-MM-DD HH:mm:ss
-      const timeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-      if (!timeRegex.test(startTime)) {
-        return c.json({
-          success: false,
-          message: 'startTime format should be YYYY-MM-DD HH:mm:ss'
-        }, 400);
+    conditions.forEach(condition => {
+      if (condition.value) {
+        whereConditions.push(`${condition.field} ${condition.operator} ?`);
+        const paramValue = condition.transform ? condition.transform(condition.value) : condition.value;
+        bindParams.push(paramValue);
       }
-      whereConditions.push('inserted_at >= ?');
-      bindParams.push(startTime);
-    }
-    
-    if (endTime) {
-      // 验证时间格式 YYYY-MM-DD HH:mm:ss
-      const timeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-      if (!timeRegex.test(endTime)) {
-        return c.json({
-          success: false,
-          message: 'endTime format should be YYYY-MM-DD HH:mm:ss'
-        }, 400);
-      }
-      whereConditions.push('inserted_at <= ?');
-      bindParams.push(endTime);
-    }
+    });
     
     // 构建 WHERE 子句
     const whereClause = whereConditions.length > 0 
@@ -173,6 +164,15 @@ foloRoutes.post('/folo/webhook', async (c) => {
     }
 
     // Extract and map fields from entry
+    // 时间转换函数：UTC 转中国时间
+    const convertToChineseTime = (utcTimeString) => {
+      if (!utcTimeString) return null;
+      const utcDate = new Date(utcTimeString);
+      // 转换为中国时间（UTC+8）
+      const chinaTime = new Date(utcDate.getTime() + 8 * 60 * 60 * 1000);
+      return chinaTime.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
+    };
+
     const item = {
       item_id: entry.id,
       feed_id: entry.feedId,
@@ -183,8 +183,8 @@ foloRoutes.post('/folo/webhook', async (c) => {
       description: entry.description || null,
       content: entry.content || null,
       media: entry.media || null,
-      published_at: entry.publishedAt,
-      inserted_at: entry.insertedAt,
+      published_at: convertToChineseTime(entry.publishedAt),
+      inserted_at: convertToChineseTime(entry.insertedAt),
       category: entry.category || null,
     };
 

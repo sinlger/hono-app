@@ -11,7 +11,7 @@ export const openApiDoc = {
       description: 'Development server'
     },
     {
-      url: 'https://your-domain.com',
+      url: 'https://atoolio.com',
       description: 'Production server'
     }
   ],
