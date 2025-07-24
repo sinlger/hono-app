@@ -5,6 +5,16 @@ export const openApiDoc = {
     version: '1.0.0',
     description: 'API documentation for Hono App'
   },
+  servers: [
+    {
+      url: 'http://localhost:5173',
+      description: 'Development server'
+    },
+    {
+      url: 'https://your-domain.com',
+      description: 'Production server'
+    }
+  ],
   paths: {
 
     '/folo/auth/token': {
@@ -57,7 +67,27 @@ export const openApiDoc = {
               }
             }
           },
-          '401': {
+           '400': {
+             description: '请求参数错误',
+             content: {
+               'application/json': {
+                 schema: {
+                   type: 'object',
+                   properties: {
+                     success: {
+                       type: 'boolean',
+                       example: false
+                     },
+                     message: {
+                       type: 'string',
+                       example: 'startTime format should be YYYY-MM-DD HH:mm:ss'
+                     }
+                   }
+                 }
+               }
+             }
+           },
+           '401': {
             description: '认证失败',
             content: {
               'application/json': {
@@ -152,17 +182,39 @@ export const openApiDoc = {
             }
           },
           {
-            name: 'limit',
-            in: 'query',
-            description: '每页条数，默认10条，最大100条',
-            required: false,
-            schema: {
-              type: 'integer',
-              minimum: 1,
-              maximum: 100,
-              default: 10
-            }
-          }
+             name: 'limit',
+             in: 'query',
+             description: '每页条数，默认10条，最大100条',
+             required: false,
+             schema: {
+               type: 'integer',
+               minimum: 1,
+               maximum: 100,
+               default: 10
+             }
+           },
+           {
+             name: 'startTime',
+             in: 'query',
+             description: '开始时间，格式：YYYY-MM-DD HH:mm:ss',
+             required: false,
+             schema: {
+               type: 'string',
+               pattern: '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$',
+               example: '2024-01-01 00:00:00'
+             }
+           },
+           {
+             name: 'endTime',
+             in: 'query',
+             description: '结束时间，格式：YYYY-MM-DD HH:mm:ss',
+             required: false,
+             schema: {
+               type: 'string',
+               pattern: '^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$',
+               example: '2024-12-31 23:59:59'
+             }
+           }
         ],
         responses: {
           '200': {
@@ -206,13 +258,15 @@ export const openApiDoc = {
                       }
                     },
                     filters: {
-                      type: 'object',
-                      properties: {
-                        title: { type: 'string', nullable: true, description: '标题过滤条件' },
-                        author: { type: 'string', nullable: true, description: '作者过滤条件' },
-                        url: { type: 'string', nullable: true, description: 'URL过滤条件' }
-                      }
-                    }
+                       type: 'object',
+                       properties: {
+                         title: { type: 'string', nullable: true, description: '标题过滤条件' },
+                         author: { type: 'string', nullable: true, description: '作者过滤条件' },
+                         url: { type: 'string', nullable: true, description: 'URL过滤条件' },
+                         startTime: { type: 'string', nullable: true, description: '开始时间过滤条件' },
+                         endTime: { type: 'string', nullable: true, description: '结束时间过滤条件' }
+                       }
+                     }
                   }
                 }
               }

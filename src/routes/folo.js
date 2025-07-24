@@ -47,7 +47,7 @@ foloRoutes.post('/folo/auth/token', async (c) => {
 // foloRoutes.get('/folo/search', jwt({ secret: jwtSecret }), async (c) => {
 foloRoutes.get('/folo/search', async (c) => {
   try {
-    const { title, author, url, page = 1, limit = 10 } = c.req.query();
+    const { title, author, url, startTime, endTime, page = 1, limit = 10 } = c.req.query();
     
     // 验证分页参数
     const pageNum = Math.max(1, parseInt(page) || 1);
@@ -71,6 +71,33 @@ foloRoutes.get('/folo/search', async (c) => {
     if (url) {
       whereConditions.push('url LIKE ?');
       bindParams.push(`%${url}%`);
+    }
+    
+    // 时间段查询
+    if (startTime) {
+      // 验证时间格式 YYYY-MM-DD HH:mm:ss
+      const timeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+      if (!timeRegex.test(startTime)) {
+        return c.json({
+          success: false,
+          message: 'startTime format should be YYYY-MM-DD HH:mm:ss'
+        }, 400);
+      }
+      whereConditions.push('inserted_at >= ?');
+      bindParams.push(startTime);
+    }
+    
+    if (endTime) {
+      // 验证时间格式 YYYY-MM-DD HH:mm:ss
+      const timeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+      if (!timeRegex.test(endTime)) {
+        return c.json({
+          success: false,
+          message: 'endTime format should be YYYY-MM-DD HH:mm:ss'
+        }, 400);
+      }
+      whereConditions.push('inserted_at <= ?');
+      bindParams.push(endTime);
     }
     
     // 构建 WHERE 子句
@@ -119,7 +146,9 @@ foloRoutes.get('/folo/search', async (c) => {
       filters: {
         title: title || null,
         author: author || null,
-        url: url || null
+        url: url || null,
+        startTime: startTime || null,
+        endTime: endTime || null
       }
     });
     
