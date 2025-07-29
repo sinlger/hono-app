@@ -171,6 +171,15 @@ export const openApiDoc = {
             }
           },
           {
+            name: 'category',
+            in: 'query',
+            description: '按分类搜索',
+            required: false,
+            schema: {
+              type: 'string'
+            }
+          },
+          {
             name: 'page',
             in: 'query',
             description: '页码，默认为1',
