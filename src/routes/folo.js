@@ -47,7 +47,7 @@ foloRoutes.post('/folo/auth/token', async (c) => {
 // foloRoutes.get('/folo/search', jwt({ secret: jwtSecret }), async (c) => {
 foloRoutes.get('/folo/search', async (c) => {
   try {
-    const { title, author, url, startTime, endTime, page = 1, limit = 10 } = c.req.query();
+    const { title, author, url, category, startTime, endTime, page = 1, limit = 10 } = c.req.query();
 
     // 验证时间格式（仅在参数不为空时验证）
     const timeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
