@@ -155,14 +155,14 @@ foloRoutes.get('/folo/search', async (c) => {
 });
 
 // 检查项目是否已存在
-async function checkItemExists (db, itemId) {
+async function checkItemExists(db, itemId) {
   const statement = db.prepare('SELECT 1 FROM tophub WHERE item_id = ?');
   const result = await statement.bind(itemId).first();
   return !!result;
 }
 
 // 插入新的 Folo 项目
-async function insertFoloItem (db, item) {
+async function insertFoloItem(db, item) {
   const statement = db.prepare(
     'INSERT INTO tophub (item_id, feed_id, title, author, url, guid, description, content, media, published_at, inserted_at, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   );
@@ -212,8 +212,8 @@ foloRoutes.post('/folo/webhook', async (c) => {
       description: entry.description || null,
       content: entry.content || null,
       media: entry.media || null,
-      published_at: convertToChineseTime(entry.published_at),
-      inserted_at: convertToChineseTime(entry.inserted_at),
+      published_at: convertToChineseTime(entry.publishedAt),
+      inserted_at: convertToChineseTime(entry.insertedAt),
       category: entry.category || null,
     };
 
@@ -269,8 +269,8 @@ foloRoutes.post('/folo/webhook/guonei', async (c) => {
       description: entry.description || null,
       content: entry.content || null,
       media: entry.media || null,
-      published_at: convertToChineseTime(entry.published_at),
-      inserted_at: convertToChineseTime(entry.inserted_at),
+      published_at: convertToChineseTime(entry.publishedAt),
+      inserted_at: convertToChineseTime(entry.insertedAt),
       category: '国内新闻',
     };
 
@@ -326,8 +326,8 @@ foloRoutes.post('/folo/webhook/guoji', async (c) => {
       description: entry.description || null,
       content: entry.content || null,
       media: entry.media || null,
-      published_at: convertToChineseTime(entry.published_at),
-      inserted_at: convertToChineseTime(entry.inserted_at),
+      published_at: convertToChineseTime(entry.publishedAt),
+      inserted_at: convertToChineseTime(entry.insertedAt),
       category: '国际新闻',
     };
 
