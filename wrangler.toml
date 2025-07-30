@@ -2,16 +2,19 @@ name = "hono-app"
 main = "src/index.js"
 compatibility_date = "2023-07-03"
 
+#[observability.logs]
+#enabled = true
+
 [[d1_databases]]
 binding = "DB" 
 database_name = "toutiao"
 database_id = "000558a0-efa6-41b5-be0e-1a6b4af693ed"
 
-[triggers]
-crons = [
-  "0 * * * *",
-  "*/10 * * * *"
-]
+#[triggers]
+#crons = [
+#  "0 * * * *",
+#  "*/10 * * * *"
+#]
 
 [vars]
 SILI_CHART_URL = "https://api.siliconflow.cn/v1/chat/completions"

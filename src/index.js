@@ -56,6 +56,6 @@ export default {
       //   console.warn(`[Cron Trigger] 未知或未处理的 Cron 表达式: ${cronExpression}`);
       //   break;
     }
-    console.log(`[Cron Trigger] 表达式 "${cronExpression}" 的任务执行完毕。`);
+    // console.log(`[Cron Trigger] 表达式 "${cronExpression}" 的任务执行完毕。`);
   }
 };

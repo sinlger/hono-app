@@ -410,6 +410,210 @@ export const openApiDoc = {
         }
       }
     },
+    '/folo/webhook/guonei': {
+      post: {
+        summary: '接收国内新闻 Folo Actions 的 Webhook',
+        description: '接收 Folo Actions 推送的国内新闻数据并将其存入数据库，自动分类为"国内新闻"。',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  entry: {
+                    type: 'object',
+                    properties: {
+                      item_id: { type: 'string', description: "from entry.id" },
+                      feed_id: { type: 'string', description: "from entry.feedId" },
+                      title: { type: 'string', description: "from entry.title" },
+                      author: { type: 'string', description: "from entry.author" },
+                      url: { type: 'string', description: "from entry.url" },
+                      guid: { type: 'string', description: "from entry.guid" },
+                      description: { type: 'string', description: "from entry.description" },
+                      content: { type: 'string', description: "from entry.content" },
+                      media: { type: 'object', description: 'from entry.media (as JSON string)' },
+                      published_at: { type: 'string', format: 'date-time', description: 'from entry.publishedAt' },
+                      inserted_at: { type: 'string', format: 'date-time', description: 'from entry.insertedAt' }
+                    },
+                    required: ['item_id', 'feed_id', 'title', 'url', 'published_at', 'inserted_at']
+                  }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: '数据成功保存或已存在',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Data saved successfully'
+                    },
+                    skipped: {
+                      type: 'boolean',
+                      description: '当数据已存在时为 true',
+                      example: false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '400': {
+            description: '无效的请求体',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Invalid Folo webhook payload'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '500': {
+            description: '服务器错误',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Internal server error'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/folo/webhook/guoji': {
+      post: {
+        summary: '接收国际新闻 Folo Actions 的 Webhook',
+        description: '接收 Folo Actions 推送的国际新闻数据并将其存入数据库，自动分类为"国际新闻"。',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  entry: {
+                    type: 'object',
+                    properties: {
+                      item_id: { type: 'string', description: "from entry.id" },
+                      feed_id: { type: 'string', description: "from entry.feedId" },
+                      title: { type: 'string', description: "from entry.title" },
+                      author: { type: 'string', description: "from entry.author" },
+                      url: { type: 'string', description: "from entry.url" },
+                      guid: { type: 'string', description: "from entry.guid" },
+                      description: { type: 'string', description: "from entry.description" },
+                      content: { type: 'string', description: "from entry.content" },
+                      media: { type: 'object', description: 'from entry.media (as JSON string)' },
+                      published_at: { type: 'string', format: 'date-time', description: 'from entry.publishedAt' },
+                      inserted_at: { type: 'string', format: 'date-time', description: 'from entry.insertedAt' }
+                    },
+                    required: ['item_id', 'feed_id', 'title', 'url', 'published_at', 'inserted_at']
+                  }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: '数据成功保存或已存在',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Data saved successfully'
+                    },
+                    skipped: {
+                      type: 'boolean',
+                      description: '当数据已存在时为 true',
+                      example: false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '400': {
+            description: '无效的请求体',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Invalid Folo webhook payload'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '500': {
+            description: '服务器错误',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Internal server error'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     '/webhook/push': {
       post: {
         summary: '接收 Webhook 推送',
